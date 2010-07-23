@@ -1,0 +1,139 @@
+<html !doctype>
+<head>
+<title>Sign</title>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css" /> 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	var POINT_COUNT = 1000;
+	var points = new Array(POINT_COUNT);
+	var index = 0;
+	var X = 0;
+	var Y = 1;
+	$("#button").click(function() {
+		for (k = 0, point = points[k]; k < POINT_COUNT && point != null; point = points[++k]) {
+			var currentX = point[X];
+			var currentY = point[Y];
+			var lookAheadX = currentX;
+			var lookAheadY = currentY;
+			if (points[k+1] != null) {
+				lookAheadX = points[k+1][X];
+				lookAheadY = points[k+1][Y];
+				var gapX = Math.abs(Math.abs(lookAheadX) - Math.abs(currentX));
+				var gapY = Math.abs(Math.abs(lookAheadY) - Math.abs(currentY));
+				var rise = Math.max(gapX, gapY);
+				var run = Math.min(gapX, gapY);
+				var slope = Math.round(rise/run);
+				//$("#output").append("currentX " + currentX + " currentY " + currentY + " lookAheadX " + lookAheadX + " lookAheadY " + lookAheadY + " rise " + rise + " run " + run + " slope " + slope + "<br />");
+				var FILLER_COUNT = 100;
+				var filler = new Array(FILLER_COUNT);
+				var isXNegative = ((lookAheadX - currentX) < 0) ? true : false;
+				var isYNegative = ((lookAheadY - currentY) < 0) ? true : false;
+				var tempX = currentX;
+				var tempY = currentY;
+				var i = 0;
+				var j = 0;
+				while (i < rise) {
+					filler[i] = new Array(2);
+					if (j < slope) {
+						if (isXNegative && !isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY;
+							} else {
+								filler[i][X] = tempX;
+								filler[i][Y] = tempY++;
+							}
+						} else if (!isXNegative && isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY;
+							} else {
+								filler[i][X] = tempX;
+								filler[i][Y] = tempY--;
+							}
+						} else if (isXNegative && isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY;
+							} else {
+								filler[i][X] = tempX;
+								filler[i][Y] = tempY--;
+							}
+						} else {
+							if (rise == gapX) {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY;
+							} else {
+								filler[i][X] = tempX;
+								filler[i][Y] = tempY++;
+							}
+						}
+						j++;
+					} else {
+						if (isXNegative && !isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY++;
+							} else {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY++;
+							}
+						} else if (!isXNegative && isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY--;
+							} else {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY--;
+							}
+						} else if (isXNegative && isYNegative) {
+							if (rise == gapX) {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY--;
+							} else {
+								filler[i][X] = tempX--;
+								filler[i][Y] = tempY--;
+							}
+						} else {
+							if (rise == gapX) {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY++;
+							} else {
+								filler[i][X] = tempX++;
+								filler[i][Y] = tempY++;
+							}
+						}
+						j = 0;
+					}
+					i++;
+				}
+
+				//$("#output").append(lookAheadX + ", " + lookAheadY + " ");
+				for (point in filler) {
+					//$("#output").append(filler[point][Y] + "y, " + filler[point][X] + "x<br />");
+					$("<span style=\"position: absolute; top: " + filler[point][Y] + "; left: " + filler[point][X] + "; width: 1px; height: 1px; background-color: black;\"></span>")
+						.appendTo("body");
+				}
+			}
+			$("<span style=\"position: absolute; top: " + currentY + "; left: " + currentX + "; width: 1px; height: 1px; background-color: black;\"></span>")
+				.appendTo("body");
+		}
+	})
+	$("#sign").mousemove(function(event) {
+		if (index < 1000) {
+			points[index] = new Array(2);
+			points[index][X] = event.pageX;
+			points[index][Y] = event.pageY;
+			index++;
+		}
+	});
+});
+</script>
+</head>
+<body>
+	<div id="sign" style="width: 400px; height: 100px; border: 1px solid black;"></div><input type="button" id="button" value="Button"/>
+	<div id="output"></div>
+</body>
+</html>
