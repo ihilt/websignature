@@ -37,6 +37,10 @@ $(document).ready(function() {
 		points[index][Y] = noRender;
 		index++;
 	});
+	$("#button").click(function() {
+		for (p in points)
+			$("#output").append(points[p][X] + "x, " + points[p][Y] + "y<br/>");
+	});
 });
 
 var last = 0; // remember where we stopped
@@ -63,7 +67,7 @@ function renderSig() {
 			var gapY = Math.abs(Math.abs(lookBehindY) - Math.abs(currentY));
 			var rise = Math.max(gapX, gapY);
 			var run = Math.min(gapX, gapY);
-			var slope = Math.round(rise/run);
+			var slope = Math.round(Math.floor(rise)/Math.floor(run)) - 1; //Math.round(rise/run);
 			//$("#output").append("currentX " + currentX + " currentY " + currentY + " lookBehindX " + lookBehindX + " lookBehindY " + lookBehindY + " rise " + rise + " run " + run + " slope " + slope + "<br />");
 			var FILLER_COUNT = 100;
 			var filler = new Array(FILLER_COUNT);
@@ -71,9 +75,7 @@ function renderSig() {
 			var isYNegative = ((lookBehindY - currentY) < 0) ? true : false;
 			var tempX = currentX;
 			var tempY = currentY;
-			var i = 0;
-			var j = 0;
-			while (i < rise) {
+			for (i = 0, j = 1; i <= rise; i++) {
 				filler[i] = new Array(2);
 				if (j < slope) {
 					if (isXNegative && !isYNegative) {
@@ -146,7 +148,6 @@ function renderSig() {
 					}
 					j = 0;
 				}
-				i++;
 			}
 
 			//$("#output").append(lookBehindX + ", " + lookBehindY + " ");
