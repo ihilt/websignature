@@ -1,4 +1,5 @@
-<html !doctype>
+<!DOCTYPE HTML>
+<html>
 <head>
 <title>Sign</title>
 <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css" /> 
@@ -113,12 +114,18 @@ $(document).ready(function() {
 				//$("#output").append(lookAheadX + ", " + lookAheadY + " ");
 				for (point in filler) {
 					//$("#output").append(filler[point][Y] + "y, " + filler[point][X] + "x<br />");
-					$("<span style=\"position: absolute; top: " + filler[point][Y] + "; left: " + filler[point][X] + "; width: 1px; height: 1px; background-color: black;\"></span>")
-						.appendTo("body");
+					$("<span></span>")
+						.addClass("point")
+						.css("top", filler[point][Y])
+						.css("left", filler[point][X])
+						.appendTo("#sign");
 				}
 			}
-			$("<span style=\"position: absolute; top: " + currentY + "; left: " + currentX + "; width: 1px; height: 1px; background-color: black;\"></span>")
-				.appendTo("body");
+			$("<span></span>")
+				.addClass("point")
+				.css("top", currentY)
+				.css("left", currentX)
+				.appendTo("#sign");
 		}
 	})
 	$("#sign").mousemove(function(event) {
@@ -131,9 +138,29 @@ $(document).ready(function() {
 	});
 });
 </script>
+<style type="text/css">
+.point {
+	cursor: default;
+	position: absolute;
+	width: 2px;
+	height: 2px;
+	background-color: black;
+	clip: rect(0px, 2px, 2px, 0px); /* this is required for ie to render
+					 * the line height correctly
+					 * in quirks mode
+					 */
+}
+.pad {
+	cursor: default;
+	width: 400px;
+	height: 100px;
+	border: 1px solid black;
+}
+</style>
 </head>
 <body>
-	<div id="sign" style="width: 400px; height: 100px; border: 1px solid black;"></div><input type="button" id="button" value="Button"/>
+	<div id="sign" class="pad"></div>
+	<input type="button" id="button" value="Button"/>
 	<div id="output"></div>
 </body>
 </html>
