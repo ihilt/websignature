@@ -16,6 +16,7 @@ var isLeftButtonDown = false;
 var noRender = -1;
 $(document).ready(function() {
 	$("#sign").mousemove(function(event) {
+		event.preventDefault();
 		if (index < POINT_COUNT && isLeftButtonDown) {
 			points[index] = new Array(2);
 			points[index][X] = event.pageX;
