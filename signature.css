@@ -1,0 +1,17 @@
+.point {
+	cursor: default;
+	position: absolute;
+	width: 2px;
+	height: 2px;
+	background-color: black;
+	clip: rect(0px, 2px, 2px, 0px); /* this is required for ie to render
+					 * the line height correctly
+					 * in quirks mode
+					 */
+}
+.pad {
+	cursor: default;
+	width: 400px;
+	height: 100px;
+	border: 1px solid black;
+}
