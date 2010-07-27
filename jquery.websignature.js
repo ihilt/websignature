@@ -74,8 +74,7 @@ function renderSig() {
 			var gapY = Math.abs(Math.abs(lookBehindY) - Math.abs(currentY));
 			var rise = Math.max(gapX, gapY);
 			var run = Math.min(gapX, gapY);
-			var slope = Math.round(Math.floor(rise)/Math.floor(run)) - 1; //Math.round(rise/run);
-			//$("#output").append("currentX " + currentX + " currentY " + currentY + " lookBehindX " + lookBehindX + " lookBehindY " + lookBehindY + " rise " + rise + " run " + run + " slope " + slope + "<br />");
+			var slope = Math.round(Math.floor(rise)/Math.floor(run)) - 1;
 			var FILLER_COUNT = 100;
 			var filler = new Array(FILLER_COUNT);
 			var isXNegative = ((lookBehindX - currentX) < 0) ? true : false;
@@ -157,9 +156,7 @@ function renderSig() {
 				}
 			}
 
-			//$("#output").append(lookBehindX + ", " + lookBehindY + " ");
 			for (point in filler) {
-				//$("#output").append(filler[point][Y] + "y, " + filler[point][X] + "x<br />");
 				$("<span></span>")
 					.addClass("point")
 					.css("top", filler[point][Y] + offsetTop)
