@@ -1,7 +1,7 @@
 (function($, undefined) {
 
-var POINT_COUNT = 1000,
-	points = new Array(POINT_COUNT),
+var POINT_COUNT,
+	points,
 	index = 0,
 	X = 0,
 	Y = 1,
@@ -12,11 +12,17 @@ var POINT_COUNT = 1000,
 	offsetTop;
 
 $.widget("ui.webSignature", {
+	options : {
+		signature : null
+	},
+
 	_create : function() {
 		this._init;
 	},
 
 	_init : function() {
+		points = this.options.signature;
+		POINT_COUNT = points.length;
 		offsetTop = this.element.offset().top;
 		offsetLeft = this.element.offset().left;
 		this.element.addClass("pad");

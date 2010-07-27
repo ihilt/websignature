@@ -9,7 +9,10 @@
 <script type="text/javascript" src="jquery.websignature.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	$("#sign").webSignature();
+	var signature = new Array(1000);
+	$("#sign").webSignature({
+		signature : signature
+	});
 });
 </script>
 </head>
