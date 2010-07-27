@@ -7,7 +7,9 @@ var POINT_COUNT = 1000,
 	Y = 1,
 	BUTTON_LEFT = 1,
 	isLeftButtonDown = false,
-	noRender = -1;
+	noRender = -1,
+	offsetLeft,
+	offsetTop;
 
 $.widget("ui.webSignature", {
 	_create : function() {
@@ -15,13 +17,15 @@ $.widget("ui.webSignature", {
 	},
 
 	_init : function() {
+		offsetTop = this.element.offset().top;
+		offsetLeft = this.element.offset().left;
 		this.element.addClass("pad");
 		this.element.bind("mousemove", function(event) {
 			event.preventDefault();
 			if (index < POINT_COUNT && isLeftButtonDown) {
 				points[index] = new Array(2);
-				points[index][X] = event.pageX;
-				points[index][Y] = event.pageY;
+				points[index][X] = event.pageX - offsetLeft;
+				points[index][Y] = event.pageY - offsetTop;
 				index++;
 			}
 		});
@@ -158,15 +162,15 @@ function renderSig() {
 				//$("#output").append(filler[point][Y] + "y, " + filler[point][X] + "x<br />");
 				$("<span></span>")
 					.addClass("point")
-					.css("top", filler[point][Y])
-					.css("left", filler[point][X])
+					.css("top", filler[point][Y] + offsetTop)
+					.css("left", filler[point][X] + offsetLeft)
 					.appendTo(this);
 			}
 		}
 		$("<span></span>")
 			.addClass("point")
-			.css("top", currentY)
-			.css("left", currentX)
+			.css("top", currentY + offsetTop)
+			.css("left", currentX + offsetLeft)
 			.appendTo(this);
 	}
 	last = k;
