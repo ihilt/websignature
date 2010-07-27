@@ -2,14 +2,19 @@
 <html>
 <head>
 <title>Sign</title>
-<link href="signature.css" rel="stylesheet" type="text/css" />
+<link href="jquery.websignature.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css" /> 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="signature.js"></script>
+<script type="text/javascript" src="jquery.websignature.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#sign").webSignature();
+});
+</script>
 </head>
 <body>
-	<div id="sign" class="pad"></div>
+	<div id="sign"></div>
 	<input type="button" id="button" value="Button"/>
 	<div id="output"></div>
 </body>

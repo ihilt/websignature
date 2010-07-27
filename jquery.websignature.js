@@ -1,39 +1,49 @@
-var POINT_COUNT = 1000;
-var points = new Array(POINT_COUNT);
-var index = 0;
-var X = 0;
-var Y = 1;
-var BUTTON_LEFT = 1;
-var isLeftButtonDown = false;
-var noRender = -1;
-$(document).ready(function() {
-	$("#sign").mousemove(function(event) {
-		event.preventDefault();
-		if (index < POINT_COUNT && isLeftButtonDown) {
+(function($, undefined) {
+
+var POINT_COUNT = 1000,
+	points = new Array(POINT_COUNT),
+	index = 0,
+	X = 0,
+	Y = 1,
+	BUTTON_LEFT = 1,
+	isLeftButtonDown = false,
+	noRender = -1;
+
+$.widget("ui.webSignature", {
+	_create : function() {
+		this._init;
+	},
+
+	_init : function() {
+		this.element.addClass("pad");
+		this.element.bind("mousemove", function(event) {
+			event.preventDefault();
+			if (index < POINT_COUNT && isLeftButtonDown) {
+				points[index] = new Array(2);
+				points[index][X] = event.pageX;
+				points[index][Y] = event.pageY;
+				index++;
+			}
+		});
+		this.element.bind("mousemove", renderSig);
+		this.element.bind("mousedown", function(event) {
+			event.preventDefault();
+			if (event.which == BUTTON_LEFT)
+				isLeftButtonDown = true;
+		});
+		this.element.bind("mouseup", function(event) {
+			event.preventDefault();
+			isLeftButtonDown = false;
 			points[index] = new Array(2);
-			points[index][X] = event.pageX;
-			points[index][Y] = event.pageY;
+			points[index][X] = noRender;
+			points[index][Y] = noRender;
 			index++;
-		}
-	})
-	.mousemove(renderSig)
-	.mousedown(function(event) {
-		event.preventDefault();
-		if (event.which == BUTTON_LEFT)
-			isLeftButtonDown = true;
-	})
-	.mouseup(function(event) {
-		event.preventDefault();
-		isLeftButtonDown = false;
-		points[index] = new Array(2);
-		points[index][X] = noRender;
-		points[index][Y] = noRender;
-		index++;
-	});
-	$("#button").click(function() {
-		for (p in points)
-			$("#output").append(points[p][X] + "x, " + points[p][Y] + "y<br/>");
-	});
+		});
+	},
+
+	widget: function() {
+		return this.element;
+	}
 });
 
 var last = 0; // remember where we stopped
@@ -150,14 +160,18 @@ function renderSig() {
 					.addClass("point")
 					.css("top", filler[point][Y])
 					.css("left", filler[point][X])
-					.appendTo("#sign");
+					.appendTo(this);
 			}
 		}
 		$("<span></span>")
 			.addClass("point")
 			.css("top", currentY)
 			.css("left", currentX)
-			.appendTo("#sign");
+			.appendTo(this);
 	}
 	last = k;
 }
+
+$.extend($.ui.webSignature);
+
+})(jQuery);
