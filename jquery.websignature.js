@@ -36,7 +36,7 @@ $.widget("ui.webSignature", {
 		offsetTop = this.element.offset().top;
 		offsetLeft = this.element.offset().left;
 		this.element.addClass("pad");
-		this.element.bind("mousemove", function(event) {
+		this.element.bind("mousemove.webSignature", function(event) {
 			event.preventDefault();
 			if (index < POINT_COUNT && isLeftButtonDown) {
 				points[index] = new Array(2);
@@ -45,13 +45,13 @@ $.widget("ui.webSignature", {
 				index++;
 			}
 		});
-		this.element.bind("mousemove", renderSig);
-		this.element.bind("mousedown", function(event) {
+		this.element.bind("mousemove.webSignature", renderSig);
+		this.element.bind("mousedown.webSignature", function(event) {
 			event.preventDefault();
 			if (event.which == BUTTON_LEFT)
 				isLeftButtonDown = true;
 		});
-		this.element.bind("mouseup", function(event) {
+		this.element.bind("mouseup.webSignature", function(event) {
 			event.preventDefault();
 			isLeftButtonDown = false;
 			points[index] = new Array(2);
