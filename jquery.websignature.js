@@ -20,6 +20,16 @@ $.widget("ui.webSignature", {
 		this._init;
 	},
 
+	render : function(points) {
+		for (var p = 0; p < points.length; p++) {
+			$("<span></span>")
+				.addClass("point")
+				.css("top", parseInt(points[p][Y]) + offsetTop)
+				.css("left", parseInt(points[p][X]) + offsetLeft)
+				.appendTo(this.element);
+		}
+	},
+
 	_init : function() {
 		points = this.options.signature;
 		POINT_COUNT = points.length;
@@ -49,6 +59,7 @@ $.widget("ui.webSignature", {
 			points[index][Y] = noRender;
 			index++;
 		});
+		this.render(points);
 	},
 
 	widget: function() {

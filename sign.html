@@ -9,9 +9,16 @@
 <script type="text/javascript" src="jquery.websignature.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	var signature = new Array(1000);
-	$("#sign").webSignature({
-		signature : signature
+//	var sig = new Array(1000);
+//	$("#sign").webSignature({
+//		signature : sig
+//	});
+	$("#send").click(function() {
+		$.post("/~ihilt/index.php", function(data) {
+			$("#sign").webSignature({
+				signature : data.signature
+			});
+		}, "json");
 	});
 });
 </script>
@@ -19,5 +26,7 @@ $(document).ready(function() {
 <body>
 	<p>This plugin allows the user to sign their name and then store in it a database for later retrieval.</p>
 	<div id="sign"></div>
+	<input id="send" type="button" value="Send" />
+	<div id="sign2"></div>
 </body>
 </html>
