@@ -1,194 +1,234 @@
 (function($, undefined) {
 
-var POINT_COUNT,
-	points,
+var points,
 	index = 0,
 	X = 0,
 	Y = 1,
 	BUTTON_LEFT = 1,
 	isLeftButtonDown = false,
 	noRender = -1,
-	offsetLeft,
-	offsetTop;
+	offsetLeft = 0,
+	offsetTop = 0;
 
 $.widget("ui.webSignature", {
 	options : {
-		signature : null
+		signature : null,
+		ajaxOptions : null
 	},
 
 	_create : function() {
 		this._init;
 	},
 
-	render : function(points) {
-		for (var p = 0; p < points.length; p++) {
-			$("<span></span>")
-				.addClass("point")
-				.css("top", parseInt(points[p][Y]) + offsetTop)
-				.css("left", parseInt(points[p][X]) + offsetLeft)
-				.appendTo(this.element);
+	load : function() {
+		var self = this,
+			o = this.options;
+		if (o.ajaxOptions == null)
+			return;
+		this.xhr = $.ajax($.extend({}, o.ajaxOptions, {
+			url: o.ajaxOptions.url,
+			success: function(r) {
+				array = r.signature;
+				for (p in array)
+					self.paint(array[p][X], array[p][Y]);
+			},
+			error: function(r) {
+				;
+			}
+		}));
+	},
+
+	lastIndex : 0,
+
+	createPoint : function(x, y) {
+		point = new Array(2);
+		point[X] = parseInt(x);
+		point[Y] = parseInt(y);
+		return point;
+	},
+
+	getLastIndex : function() {
+		return this.lastIndex;
+	},
+
+	setLastIndex : function(last) {
+		this.lastIndex = last;
+	},
+
+	fill : function(currentX, currentY, lookBehindX, lookBehindY) {
+		var tempX = currentX,
+			tempY = currentY,
+			isXNegative = ((lookBehindX - currentX) < 0) ? true : false,
+			isYNegative = ((lookBehindY - currentY) < 0) ? true : false,
+			gapX = this.gap(lookBehindX, currentX),
+			gapY = this.gap(lookBehindY, currentY),
+			rise = Math.max(gapX, gapY);
+			s = this.slope(gapX, gapY);
+		this.paint(currentX, currentY);
+		for (j = 0, i = 0; i < rise; i++) {
+			if (j < s) {
+				if (isXNegative && !isYNegative) {
+					if (rise == gapX) {
+						tempX--;
+						tempY;
+					} else {
+						tempX;
+						tempY++;
+					}
+				} else if (!isXNegative && isYNegative) {
+					if (rise == gapX) {
+						tempX++;
+						tempY;
+					} else {
+						tempX;
+						tempY--;
+					}
+				} else if (isXNegative && isYNegative) {
+					if (rise == gapX) {
+						tempX--;
+						tempY;
+					} else {
+						tempX;
+						tempY--;
+					}
+				} else {
+					if (rise == gapX) {
+						tempX++;
+						tempY;
+					} else {
+						tempX;
+						tempY++;
+					}
+				}
+				j++;
+			} else {
+				if (isXNegative && !isYNegative) {
+					if (rise == gapX) {
+						tempX--;
+						tempY++;
+					} else {
+						tempX--;
+						tempY++;
+					}
+				} else if (!isXNegative && isYNegative) {
+					if (rise == gapX) {
+						tempX++;
+						tempY--;
+					} else {
+						tempX++;
+						tempY--;
+					}
+				} else if (isXNegative && isYNegative) {
+					if (rise == gapX) {
+						tempX--;
+						tempY--;
+					} else {
+						tempX--;
+						tempY--;
+					}
+				} else {
+					if (rise == gapX) {
+						tempX++;
+						tempY++;
+					} else {
+						tempX++;
+						tempY++;
+					}
+				}
+				j = 0;
+			}
+			this.paint(tempX, tempY);
 		}
 	},
 
+	gap : function(c1, c2) {
+		return Math.abs(Math.abs(c1) - Math.abs(c2));
+	},
+
+	slope : function(x, y) {
+		return Math.round(Math.max(x, y)/Math.min(x, y));
+	},
+
+	lastPoint : null,
+
+	getLastPoint : function() {
+		return this.lastPoint;
+	},
+
+	setLastPoint : function(point) {
+		this.lastPoint = point;
+	},
+
+	render : function(point, element) {
+		var currentX = point[X];
+		var currentY = point[Y];
+		var lookBehindX = 0;
+		var lookBehindY = 0;
+		if (this.getLastPoint() != null) {
+			lookBehindX = this.getLastPoint()[X];
+			lookBehindY = this.getLastPoint()[Y];
+			if (lookBehindX != noRender
+				&& lookBehindY != noRender
+				&& currentX != noRender
+				&& currentY != noRender) {
+				this.fill(currentX, currentY, lookBehindX, lookBehindY);
+			} else if (currentX != noRender && currentY != noRender) {
+				this.paint(currentX, currentY);
+			}
+		} else {
+			this.paint(currentX, currentY);
+		}
+		this.setLastPoint(point);
+	},
+
 	_init : function() {
-		points = this.options.signature;
-		POINT_COUNT = points.length;
-		offsetTop = this.element.offset().top;
-		offsetLeft = this.element.offset().left;
-		this.element.addClass("pad");
-		this.element.bind("mousemove.webSignature", function(event) {
+		this.load();
+		var self = this
+			o = this.options;
+		points = o.signature;
+		offsetTop = self.element.offset().top;
+		offsetLeft = self.element.offset().left;
+		self.element.addClass("pad");
+		self.element.bind("mousemove.webSignature", function(event) {
 			event.preventDefault();
-			if (index < POINT_COUNT && isLeftButtonDown) {
-				points[index] = new Array(2);
-				points[index][X] = event.pageX - offsetLeft;
-				points[index][Y] = event.pageY - offsetTop;
-				index++;
+			if (isLeftButtonDown) {
+				point = self.createPoint(event.pageX - offsetLeft, event.pageY - offsetTop);
+				self.render(point, self.element);
 			}
 		});
-		this.element.bind("mousemove.webSignature", renderSig);
-		this.element.bind("mousedown.webSignature", function(event) {
+		self.element.bind("mousedown.webSignature", function(event) {
 			event.preventDefault();
-			if (event.which == BUTTON_LEFT)
+			if (event.which == BUTTON_LEFT) {
 				isLeftButtonDown = true;
+				point = self.createPoint(event.pageX - offsetLeft, event.pageY - offsetTop);
+				self.render(point, self.element);
+			}
 		});
-		this.element.bind("mouseup.webSignature", function(event) {
+		self.element.bind("mouseup.webSignature", function(event) {
 			event.preventDefault();
-			isLeftButtonDown = false;
-			points[index] = new Array(2);
-			points[index][X] = noRender;
-			points[index][Y] = noRender;
-			index++;
+			if (isLeftButtonDown) {
+				isLeftButtonDown = false;
+				point = self.createPoint(noRender, noRender);
+				self.render(point, self.element);
+			}
 		});
-		this.render(points);
+	},
+
+	paint : function(x, y) {
+		point = this.createPoint(x, y);
+		$("<span></span>")
+			.addClass("point")
+			.css("top", point[Y] + offsetTop)
+			.css("left", point[X] + offsetLeft)
+			.appendTo(this.element);
+		if (points != null && index < points.length)
+			points[index++] = point;
 	},
 
 	widget: function() {
 		return this.element;
 	}
 });
-
-var last = 0; // remember where we stopped
-function renderSig() {
-	if (!isLeftButtonDown)
-		return;
-	var currentIndex = index; // we don't want the end point to update during the for loop
-	for (k = last, point = points[k]; k < currentIndex && point != null; point = points[++k]) {
-		var currentX = point[X];
-		var currentY = point[Y];
-		var lookBehindX = 0;
-		var lookBehindY = 0;
-		if (points[k-1] != null) {
-			lookBehindX = points[k-1][X];
-			lookBehindY = points[k-1][Y];
-			if (lookBehindX == noRender
-				|| lookBehindY == noRender
-				|| points[k][X] == noRender
-				|| points[k][Y] == noRender) {
-				k++;
-				break;
-			}
-			var gapX = Math.abs(Math.abs(lookBehindX) - Math.abs(currentX));
-			var gapY = Math.abs(Math.abs(lookBehindY) - Math.abs(currentY));
-			var rise = Math.max(gapX, gapY);
-			var run = Math.min(gapX, gapY);
-			var slope = Math.round(Math.floor(rise)/Math.floor(run)) - 1;
-			var FILLER_COUNT = 100;
-			var filler = new Array(FILLER_COUNT);
-			var isXNegative = ((lookBehindX - currentX) < 0) ? true : false;
-			var isYNegative = ((lookBehindY - currentY) < 0) ? true : false;
-			var tempX = currentX;
-			var tempY = currentY;
-			for (i = 0, j = 1; i <= rise; i++) {
-				filler[i] = new Array(2);
-				if (j < slope) {
-					if (isXNegative && !isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY;
-						} else {
-							filler[i][X] = tempX;
-							filler[i][Y] = tempY++;
-						}
-					} else if (!isXNegative && isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY;
-						} else {
-							filler[i][X] = tempX;
-							filler[i][Y] = tempY--;
-						}
-					} else if (isXNegative && isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY;
-						} else {
-							filler[i][X] = tempX;
-							filler[i][Y] = tempY--;
-						}
-					} else {
-						if (rise == gapX) {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY;
-						} else {
-							filler[i][X] = tempX;
-							filler[i][Y] = tempY++;
-						}
-					}
-					j++;
-				} else {
-					if (isXNegative && !isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY++;
-						} else {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY++;
-						}
-					} else if (!isXNegative && isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY--;
-						} else {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY--;
-						}
-					} else if (isXNegative && isYNegative) {
-						if (rise == gapX) {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY--;
-						} else {
-							filler[i][X] = tempX--;
-							filler[i][Y] = tempY--;
-						}
-					} else {
-						if (rise == gapX) {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY++;
-						} else {
-							filler[i][X] = tempX++;
-							filler[i][Y] = tempY++;
-						}
-					}
-					j = 0;
-				}
-			}
-
-			for (point in filler) {
-				$("<span></span>")
-					.addClass("point")
-					.css("top", filler[point][Y] + offsetTop)
-					.css("left", filler[point][X] + offsetLeft)
-					.appendTo(this);
-			}
-		}
-		$("<span></span>")
-			.addClass("point")
-			.css("top", currentY + offsetTop)
-			.css("left", currentX + offsetLeft)
-			.appendTo(this);
-	}
-	last = k;
-}
 
 $.extend($.ui.webSignature);
 
