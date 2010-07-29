@@ -38,21 +38,11 @@ $.widget("ui.webSignature", {
 		}));
 	},
 
-	lastIndex : 0,
-
 	createPoint : function(x, y) {
 		point = new Array(2);
 		point[X] = parseInt(x);
 		point[Y] = parseInt(y);
 		return point;
-	},
-
-	getLastIndex : function() {
-		return this.lastIndex;
-	},
-
-	setLastIndex : function(last) {
-		this.lastIndex = last;
 	},
 
 	fill : function(currentX, currentY, lookBehindX, lookBehindY) {
