@@ -213,6 +213,11 @@ $.widget("ui.webSignature", {
 			.appendTo(this.element);
 		if (points != null && index < points.length)
 			points[index++] = point;
+		else if (points != null) {
+			points.length *= 2;
+			points[index++] = points;
+			console.log(points);
+		}
 	},
 
 	widget: function() {
