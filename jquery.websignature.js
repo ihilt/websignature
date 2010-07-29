@@ -6,9 +6,7 @@ var points,
 	Y = 1,
 	BUTTON_LEFT = 1,
 	isLeftButtonDown = false,
-	noRender = -1,
-	offsetLeft = 0,
-	offsetTop = 0;
+	noRender = -1;
 
 $.widget("ui.webSignature", {
 	options : {
@@ -20,7 +18,23 @@ $.widget("ui.webSignature", {
 		this._init;
 	},
 
-	load : function() {
+	getOffsetLeft : function() {
+		return this.element.offset().left;
+	},
+
+	getOffsetTop : function() {
+		return this.element.offset().top;
+	},
+
+	load : function(array) {
+		if (Array.isArray(array))
+			for (p in array)
+				this.paint(array[p][X], array[p][Y]);
+		else
+			this._load();
+	},
+
+	_load : function() {
 		var self = this,
 			o = this.options;
 		if (o.ajaxOptions == null)
@@ -172,17 +186,15 @@ $.widget("ui.webSignature", {
 	},
 
 	_init : function() {
-		this.load();
 		var self = this
 			o = this.options;
-		points = o.signature;
-		offsetTop = self.element.offset().top;
-		offsetLeft = self.element.offset().left;
+		if (o.signature != null)
+			points = o.signature;
 		self.element.addClass("pad");
 		self.element.bind("mousemove.webSignature", function(event) {
 			event.preventDefault();
 			if (isLeftButtonDown) {
-				point = self.createPoint(event.pageX - offsetLeft, event.pageY - offsetTop);
+				point = self.createPoint(event.pageX - self.getOffsetLeft(), event.pageY - self.getOffsetTop());
 				self.render(point, self.element);
 			}
 		});
@@ -190,7 +202,7 @@ $.widget("ui.webSignature", {
 			event.preventDefault();
 			if (event.which == BUTTON_LEFT) {
 				isLeftButtonDown = true;
-				point = self.createPoint(event.pageX - offsetLeft, event.pageY - offsetTop);
+				point = self.createPoint(event.pageX - self.getOffsetLeft(), event.pageY - self.getOffsetTop());
 				self.render(point, self.element);
 			}
 		});
@@ -208,15 +220,14 @@ $.widget("ui.webSignature", {
 		point = this.createPoint(x, y);
 		$("<span></span>")
 			.addClass("point")
-			.css("top", point[Y] + offsetTop)
-			.css("left", point[X] + offsetLeft)
+			.css("top", point[Y] + this.getOffsetTop())
+			.css("left", point[X] + this.getOffsetLeft())
 			.appendTo(this.element);
 		if (points != null && index < points.length)
 			points[index++] = point;
 		else if (points != null) {
 			points.length *= 2;
-			points[index++] = points;
-			console.log(points);
+			points[index++] = point;
 		}
 	},
 
