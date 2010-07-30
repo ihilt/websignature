@@ -216,11 +216,13 @@ $.widget("ui.webSignature", {
 	_paint : function(x, y) {
 		point = this._createPoint(x, y);
 		points = this.options.signature;
+		// order is important here!
+		// addClass, appendTo, then css
 		$("<span></span>")
 			.addClass("point")
+			.appendTo(this.element)
 			.css("top", point[Y] + this._getOffsetTop())
-			.css("left", point[X] + this._getOffsetLeft())
-			.appendTo(this.element);
+			.css("left", point[X] + this._getOffsetLeft());
 		if (points != null && index < points.length)
 			points[index++] = point;
 		else if (points != null) {
