@@ -1,7 +1,6 @@
 (function($, undefined) {
 
-var points,
-	index = 0,
+var index = 0,
 	X = 0,
 	Y = 1,
 	BUTTON_LEFT = 1,
@@ -188,8 +187,6 @@ $.widget("ui.webSignature", {
 	_init : function() {
 		var self = this
 			o = this.options;
-		if (o.signature != null)
-			points = o.signature;
 		self.element.addClass("pad");
 		self.element.bind("mousemove.webSignature", function(event) {
 			event.preventDefault();
@@ -218,6 +215,7 @@ $.widget("ui.webSignature", {
 
 	_paint : function(x, y) {
 		point = this._createPoint(x, y);
+		points = this.options.signature;
 		$("<span></span>")
 			.addClass("point")
 			.css("top", point[Y] + this._getOffsetTop())
