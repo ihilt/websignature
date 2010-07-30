@@ -27,7 +27,7 @@ $.widget("ui.webSignature", {
 	},
 
 	load : function(array) {
-		if (Array.isArray(array))
+		if ($.isArray(array))
 			for (p in array)
 				this._paint(array[p][X], array[p][Y]);
 		else
