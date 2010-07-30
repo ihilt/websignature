@@ -18,18 +18,18 @@ $.widget("ui.webSignature", {
 		this._init;
 	},
 
-	getOffsetLeft : function() {
+	_getOffsetLeft : function() {
 		return this.element.offset().left;
 	},
 
-	getOffsetTop : function() {
+	_getOffsetTop : function() {
 		return this.element.offset().top;
 	},
 
 	load : function(array) {
 		if (Array.isArray(array))
 			for (p in array)
-				this.paint(array[p][X], array[p][Y]);
+				this._paint(array[p][X], array[p][Y]);
 		else
 			this._load();
 	},
@@ -44,7 +44,7 @@ $.widget("ui.webSignature", {
 			success: function(r) {
 				array = r.signature;
 				for (p in array)
-					self.paint(array[p][X], array[p][Y]);
+					self._paint(array[p][X], array[p][Y]);
 			},
 			error: function(r) {
 				;
@@ -52,23 +52,23 @@ $.widget("ui.webSignature", {
 		}));
 	},
 
-	createPoint : function(x, y) {
+	_createPoint : function(x, y) {
 		point = new Array(2);
 		point[X] = parseInt(x);
 		point[Y] = parseInt(y);
 		return point;
 	},
 
-	fill : function(currentX, currentY, lookBehindX, lookBehindY) {
+	_fill : function(currentX, currentY, lookBehindX, lookBehindY) {
 		var tempX = currentX,
 			tempY = currentY,
 			isXNegative = ((lookBehindX - currentX) < 0) ? true : false,
 			isYNegative = ((lookBehindY - currentY) < 0) ? true : false,
-			gapX = this.gap(lookBehindX, currentX),
-			gapY = this.gap(lookBehindY, currentY),
+			gapX = this._gap(lookBehindX, currentX),
+			gapY = this._gap(lookBehindY, currentY),
 			rise = Math.max(gapX, gapY);
-			s = this.slope(gapX, gapY);
-		this.paint(currentX, currentY);
+			s = this._slope(gapX, gapY);
+		this._paint(currentX, currentY);
 		for (j = 0, i = 0; i < rise; i++) {
 			if (j < s) {
 				if (isXNegative && !isYNegative) {
@@ -141,48 +141,48 @@ $.widget("ui.webSignature", {
 				}
 				j = 0;
 			}
-			this.paint(tempX, tempY);
+			this._paint(tempX, tempY);
 		}
 	},
 
-	gap : function(c1, c2) {
+	_gap : function(c1, c2) {
 		return Math.abs(Math.abs(c1) - Math.abs(c2));
 	},
 
-	slope : function(x, y) {
+	_slope : function(x, y) {
 		return Math.round(Math.max(x, y)/Math.min(x, y));
 	},
 
-	lastPoint : null,
+	_lastPoint : null,
 
-	getLastPoint : function() {
-		return this.lastPoint;
+	_getLastPoint : function() {
+		return this._lastPoint;
 	},
 
-	setLastPoint : function(point) {
-		this.lastPoint = point;
+	_setLastPoint : function(point) {
+		this._lastPoint = point;
 	},
 
-	render : function(point, element) {
+	_render : function(point, element) {
 		var currentX = point[X];
 		var currentY = point[Y];
 		var lookBehindX = 0;
 		var lookBehindY = 0;
-		if (this.getLastPoint() != null) {
-			lookBehindX = this.getLastPoint()[X];
-			lookBehindY = this.getLastPoint()[Y];
+		if (this._getLastPoint() != null) {
+			lookBehindX = this._getLastPoint()[X];
+			lookBehindY = this._getLastPoint()[Y];
 			if (lookBehindX != noRender
 				&& lookBehindY != noRender
 				&& currentX != noRender
 				&& currentY != noRender) {
-				this.fill(currentX, currentY, lookBehindX, lookBehindY);
+				this._fill(currentX, currentY, lookBehindX, lookBehindY);
 			} else if (currentX != noRender && currentY != noRender) {
-				this.paint(currentX, currentY);
+				this._paint(currentX, currentY);
 			}
 		} else {
-			this.paint(currentX, currentY);
+			this._paint(currentX, currentY);
 		}
-		this.setLastPoint(point);
+		this._setLastPoint(point);
 	},
 
 	_init : function() {
@@ -194,34 +194,34 @@ $.widget("ui.webSignature", {
 		self.element.bind("mousemove.webSignature", function(event) {
 			event.preventDefault();
 			if (isLeftButtonDown) {
-				point = self.createPoint(event.pageX - self.getOffsetLeft(), event.pageY - self.getOffsetTop());
-				self.render(point, self.element);
+				point = self._createPoint(event.pageX - self._getOffsetLeft(), event.pageY - self._getOffsetTop());
+				self._render(point, self.element);
 			}
 		});
 		self.element.bind("mousedown.webSignature", function(event) {
 			event.preventDefault();
 			if (event.which == BUTTON_LEFT) {
 				isLeftButtonDown = true;
-				point = self.createPoint(event.pageX - self.getOffsetLeft(), event.pageY - self.getOffsetTop());
-				self.render(point, self.element);
+				point = self._createPoint(event.pageX - self._getOffsetLeft(), event.pageY - self._getOffsetTop());
+				self._render(point, self.element);
 			}
 		});
 		self.element.bind("mouseup.webSignature", function(event) {
 			event.preventDefault();
 			if (isLeftButtonDown) {
 				isLeftButtonDown = false;
-				point = self.createPoint(noRender, noRender);
-				self.render(point, self.element);
+				point = self._createPoint(noRender, noRender);
+				self._render(point, self.element);
 			}
 		});
 	},
 
-	paint : function(x, y) {
-		point = this.createPoint(x, y);
+	_paint : function(x, y) {
+		point = this._createPoint(x, y);
 		$("<span></span>")
 			.addClass("point")
-			.css("top", point[Y] + this.getOffsetTop())
-			.css("left", point[X] + this.getOffsetLeft())
+			.css("top", point[Y] + this._getOffsetTop())
+			.css("left", point[X] + this._getOffsetLeft())
 			.appendTo(this.element);
 		if (points != null && index < points.length)
 			points[index++] = point;
